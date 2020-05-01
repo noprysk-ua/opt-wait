@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# demo shows how to wait for a process
+# the proposed method works for
+# - child,
+# - non-child, and
+# - non-related to the terminal
+# processes
+
+# opt-wait waits for a command to end up execution
+# unix wait command is not suitable for it waits for a child command only
+# all the tail errors are ignored for a command may expire after getting pid
+opt-wait() {
+    local cmd="${1}"
+    local pid=$(pgrep --full "${cmd}")
+    if [[ "${pid}" != "" ]]; then
+        tail --pid=${pid} -f /dev/null 2>&1 || true
+    fi
+}
+
+echo "sleeping 10 in the underground"
+CMD="sleep 10"
+${CMD} &
+
+echo "waiting till the end of sleep"
+opt-wait "${CMD}"
+echo "waiting done, exiting the script"
